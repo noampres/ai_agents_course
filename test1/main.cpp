@@ -1,7 +1,7 @@
 #include <iostream>
 
 int main() {
-    double a, b;
+    double a, b, c;
 
     std::cout << "Enter first number: ";
     if (!(std::cin >> a)) {
@@ -15,6 +15,12 @@ int main() {
         return 1;
     }
 
-    std::cout << "Result: " << a + b << '\n';
+    std::cout << "Enter third number: ";
+    if (!(std::cin >> c)) {
+        std::cerr << "Invalid input.\n";
+        return 1;
+    }
+
+    std::cout << "Result: " << a + b + c << '\n';
     return 0;
 }
