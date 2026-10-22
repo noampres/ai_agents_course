@@ -83,19 +83,20 @@ def sample_items(lang, n, top, seed):
             "word": word,
             "letter": letter,
             "expected": expected,
-            # True when the word has a final form of the asked letter (e.g. מ in מים)
+            # Count if final forms are a separate letter (מ in מים -> 1). Both counts are accepted.
+            "expected_strict": word.count(letter),
             "final_form_case": word.count(letter) != expected,
         })
     return items
 
 
-def parse_answer(text, cot):
+def parse_answer(text):
     marked = re.findall(r"(?:Answer|תשובה)\s*[:：]?\s*\**\s*(\d+)", text, re.IGNORECASE)
     if marked:
         return int(marked[-1])
     nums = re.findall(r"\d+", text)
-    if nums:
-        return int(nums[-1] if cot else nums[0])
+    if nums:  # last number: replies that reason first number their steps ("1. א ...")
+        return int(nums[-1])
     for phrase in sorted(NUMBER_WORDS, key=len, reverse=True):
         if re.search(rf"(?<!\w){re.escape(phrase)}(?!\w)", text, re.IGNORECASE):
             return NUMBER_WORDS[phrase]
@@ -106,6 +107,7 @@ def ask_claude(prompt, model, workdir, thinking=False, thinking_tokens=None, ret
     cmd = [os.environ.get("CLAUDE_BIN", "claude"), "-p", "--model", model, "--tools", "",
            "--strict-mcp-config", "--system-prompt", "You are a helpful assistant."]
     env = {k: v for k, v in os.environ.items() if k != "MAX_THINKING_TOKENS"}
+    env["CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP"] = "1"  # run the model we asked for
     if not thinking:
         env["MAX_THINKING_TOKENS"] = "0"
     elif thinking_tokens:
@@ -143,7 +145,7 @@ def main():
                    help="extended thinking: no (MAX_THINKING_TOKENS=0), yes (Claude Code default)")
     p.add_argument("--thinking-tokens", type=int,
                    help="with --thinking yes: set MAX_THINKING_TOKENS to this budget instead of the default")
-    p.add_argument("--model", default="claude-haiku-4-5,claude-3-5-haiku-20241022",
+    p.add_argument("--model", default="claude-haiku-4-5,claude-haiku-5-5",
                    help="model(s), comma separated")
     p.add_argument("--top", type=int, default=20000, help="sample from the N most frequent words")
     p.add_argument("--seed", default="42")
@@ -198,9 +200,9 @@ def main():
                 error = None
             except Exception as e:
                 answer, error = "", str(e)
-            parsed = parse_answer(answer, cfg["cot"] == "yes")
+            parsed = parse_answer(answer)
             return {**cfg, **item, "prompt": prompt, "answer": answer, "parsed": parsed,
-                    "correct": parsed == item["expected"], "error": error}
+                    "correct": parsed in (item["expected"], item["expected_strict"]), "error": error}
 
         with ThreadPoolExecutor(args.workers) as pool, open(results_path, "a", encoding="utf-8") as f:
             futures = [pool.submit(run, j) for j in todo]
@@ -278,6 +280,9 @@ def write_markdown(rows, configs, path):
 
 def report(out):
     rows = [json.loads(line) for line in (out / "results.jsonl").read_text(encoding="utf-8").splitlines()]
+    for r in rows:  # re-score from the saved answers, so parser fixes apply to old runs
+        r["parsed"] = parse_answer(r["answer"])
+        r["correct"] = r["parsed"] in (r["expected"], r.get("expected_strict", r["expected"]))
     keys = ("dict", "qlang", "cot", "thinking", "model")
     configs = [dict(zip(keys, k)) for k in dict.fromkeys(tuple(r.get(k, "no") for k in keys) for r in rows)]
     summarize(rows, configs, out)
