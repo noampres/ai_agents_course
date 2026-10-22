@@ -102,10 +102,15 @@ def parse_answer(text, cot):
     return None
 
 
-def ask_claude(prompt, model, workdir, retries=2):
+def ask_claude(prompt, model, workdir, thinking=False, thinking_tokens=None, retries=2):
     cmd = [os.environ.get("CLAUDE_BIN", "claude"), "-p", "--model", model, "--tools", "",
            "--strict-mcp-config", "--system-prompt", "You are a helpful assistant."]
-    env = {**os.environ, "MAX_THINKING_TOKENS": "0"}
+    env = {k: v for k, v in os.environ.items() if k != "MAX_THINKING_TOKENS"}
+    if not thinking:
+        env["MAX_THINKING_TOKENS"] = "0"
+    elif thinking_tokens:
+        env["MAX_THINKING_TOKENS"] = str(thinking_tokens)
+    # else: Claude Code's default thinking behavior
     for attempt in range(retries + 1):
         proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True,
                               env=env, cwd=workdir, timeout=300)
@@ -134,6 +139,10 @@ def main():
     p.add_argument("--dict", default="he,en", help="dictionary language(s): he,en")
     p.add_argument("--qlang", default="he,en", help="question language(s): he,en")
     p.add_argument("--cot", default="no,yes", help="chain of thought: no,yes")
+    p.add_argument("--thinking", default="no,yes",
+                   help="extended thinking: no (MAX_THINKING_TOKENS=0), yes (Claude Code default)")
+    p.add_argument("--thinking-tokens", type=int,
+                   help="with --thinking yes: set MAX_THINKING_TOKENS to this budget instead of the default")
     p.add_argument("--model", default="claude-haiku-4-5,claude-3-5-haiku-20241022",
                    help="model(s), comma separated")
     p.add_argument("--top", type=int, default=20000, help="sample from the N most frequent words")
@@ -141,12 +150,17 @@ def main():
     p.add_argument("--workers", type=int, default=4, help="parallel claude sessions")
     p.add_argument("--out", type=Path, help="results dir (reuse one to resume an interrupted run)")
     p.add_argument("--dry-run", action="store_true", help="print the prompts without calling claude")
+    p.add_argument("--report", type=Path, metavar="DIR", help="only rebuild the tables from DIR/results.jsonl")
     args = p.parse_args()
 
-    dicts, qlangs, cots, models = split(args.dict), split(args.qlang), split(args.cot), split(args.model)
+    if args.report:
+        return report(args.report)
+
+    dicts, qlangs, cots = split(args.dict), split(args.qlang), split(args.cot)
+    thinkings, models = split(args.thinking), split(args.model)
     items = {lang: sample_items(lang, args.runs, args.top, args.seed) for lang in dicts}
-    configs = [dict(dict=d, qlang=q, cot=c, model=m)
-               for d, q, c, m in itertools.product(dicts, qlangs, cots, models)]
+    configs = [dict(dict=d, qlang=q, cot=c, thinking=t, model=m)
+               for d, q, c, t, m in itertools.product(dicts, qlangs, cots, thinkings, models)]
 
     jobs = []
     for cfg in configs:
@@ -162,7 +176,7 @@ def main():
     out = args.out or HERE / "results" / time.strftime("%Y%m%d_%H%M%S")
     out.mkdir(parents=True, exist_ok=True)
     results_path = out / "results.jsonl"
-    key = lambda r: (r["dict"], r["qlang"], r["cot"], r["model"], r["idx"])
+    key = lambda r: (r["dict"], r["qlang"], r["cot"], r.get("thinking", "no"), r["model"], r["idx"])
     done = {}
     if results_path.exists():
         for line in results_path.read_text(encoding="utf-8").splitlines():
@@ -179,7 +193,9 @@ def main():
         def run(job):
             cfg, item, prompt = job
             try:
-                answer, error = ask_claude(prompt, cfg["model"], workdir), None
+                answer = ask_claude(prompt, cfg["model"], workdir,
+                                    cfg["thinking"] == "yes", args.thinking_tokens)
+                error = None
             except Exception as e:
                 answer, error = "", str(e)
             parsed = parse_answer(answer, cfg["cot"] == "yes")
@@ -197,7 +213,7 @@ def main():
                 f.flush()
                 done[key(r)] = r
                 mark = "✓" if r["correct"] else "✗"
-                print(f"[{n}/{len(todo)}] {mark} {r['dict']}/{r['qlang']}/cot={r['cot']}/{r['model']} "
+                print(f"[{n}/{len(todo)}] {mark} {r['dict']}/{r['qlang']}/cot={r['cot']}/think={r['thinking']}/{r['model']} "
                       f"{r['word']} '{r['letter']}' expected={r['expected']} got={r['parsed']}")
 
     summarize(list(done.values()), configs, out)
@@ -207,12 +223,12 @@ def summarize(rows, configs, out):
     def acc(subset):
         return (sum(r["correct"] for r in subset), len(subset))
 
-    lines = [("dict", "qlang", "cot", "model", "correct", "total", "accuracy", "unparsed")]
+    lines = [("dict", "qlang", "cot", "thinking", "model", "correct", "total", "accuracy", "unparsed")]
     for cfg in configs:
-        subset = [r for r in rows if all(r[k] == v for k, v in cfg.items())]
+        subset = [r for r in rows if all(r.get(k, "no") == v for k, v in cfg.items())]
         c, t = acc(subset)
         unparsed = sum(r["parsed"] is None for r in subset)
-        lines.append((cfg["dict"], cfg["qlang"], cfg["cot"], cfg["model"], c, t,
+        lines.append((cfg["dict"], cfg["qlang"], cfg["cot"], cfg["thinking"], cfg["model"], c, t,
                       f"{c / t:.1%}" if t else "-", unparsed))
 
     with open(out / "summary.csv", "w", newline="", encoding="utf-8") as f:
@@ -224,13 +240,47 @@ def summarize(rows, configs, out):
         print("  ".join(str(v).ljust(w) for v, w in zip(row, widths)))
 
     print("\nAccuracy by factor (averaged over everything else):")
-    for factor in ("dict", "qlang", "cot", "model"):
+    for factor in ("dict", "qlang", "cot", "thinking", "model"):
         parts = []
-        for value in sorted({r[factor] for r in rows}):
-            c, t = acc([r for r in rows if r[factor] == value])
+        for value in sorted({r.get(factor, "no") for r in rows}):
+            c, t = acc([r for r in rows if r.get(factor, "no") == value])
             parts.append(f"{value}={c / t:.1%} ({c}/{t})")
-        print(f"  {factor:6} " + "   ".join(parts))
-    print(f"\nSaved {out / 'results.jsonl'} and {out / 'summary.csv'}")
+        print(f"  {factor:8} " + "   ".join(parts))
+
+    write_markdown(rows, configs, out / "results.md")
+    print(f"\nSaved {out / 'results.jsonl'}, {out / 'summary.csv'} and {out / 'results.md'}")
+
+
+def write_markdown(rows, configs, path):
+    """Table with one row per (dict, qlang, cot, thinking) and one accuracy column per model."""
+    models = list(dict.fromkeys(cfg["model"] for cfg in configs))
+    factors = ("dict", "qlang", "cot", "thinking")
+    groups = list(dict.fromkeys(tuple(cfg[k] for k in factors) for cfg in configs))
+
+    def cell(subset):
+        c, t = sum(r["correct"] for r in subset), len(subset)
+        return f"{c / t:.0%} ({c}/{t})" if t else "-"
+
+    md = ["# Letter-counting results", "",
+          "| dictionary | question | CoT prompt | thinking | " + " | ".join(models) + " |",
+          "|---|---|---|---|" + "---|" * len(models)]
+    for g in groups:
+        cells = [cell([r for r in rows if tuple(r.get(k, "no") for k in factors) == g and r["model"] == m])
+                 for m in models]
+        md.append("| " + " | ".join(g) + " | " + " | ".join(cells) + " |")
+
+    md += ["", "## By factor", "", "| factor | value | accuracy |", "|---|---|---|"]
+    for factor in factors + ("model",):
+        for value in sorted({r.get(factor, "no") for r in rows}):
+            md.append(f"| {factor} | {value} | {cell([r for r in rows if r.get(factor, 'no') == value])} |")
+    path.write_text("\n".join(md) + "\n", encoding="utf-8")
+
+
+def report(out):
+    rows = [json.loads(line) for line in (out / "results.jsonl").read_text(encoding="utf-8").splitlines()]
+    keys = ("dict", "qlang", "cot", "thinking", "model")
+    configs = [dict(zip(keys, k)) for k in dict.fromkeys(tuple(r.get(k, "no") for k in keys) for r in rows)]
+    summarize(rows, configs, out)
 
 
 if __name__ == "__main__":
