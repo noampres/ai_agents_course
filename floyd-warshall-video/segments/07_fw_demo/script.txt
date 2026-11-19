@@ -1,0 +1,13 @@
+Let's start with k equals A. Row A and column A form the pivot cross, since every detour through A uses one value from each.
+B to C: eight plus infinity is still infinity, so the direct two stays.
+B to D: eight plus seven is fifteen, less than infinity, so we write fifteen.
+C to B: five plus three is eight, also better than infinity.
+C to D: five plus seven is twelve, worse than the direct one.
+D to B: two plus three is five, better than infinity.
+D to C: two plus infinity is still infinity, so nothing changes.
+Now k equals B, so paths may pass through A and B.
+A to C: three plus two gives five.
+D to C: five plus two gives seven. Notice that this five already uses the detour through A.
+With k equals C, we find three more shortcuts: A to D drops to six, B to A to seven, and B to D to three.
+Finally, k equals D: B to A becomes five, C to A three, and C to B six.
+After the last round, every entry is now the true shortest distance, the same table the edge-by-edge method found.

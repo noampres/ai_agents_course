@@ -47,6 +47,7 @@ All values live in `common/spec.py`; never hard-code them in a segment.
 | Video codec | H.264 (`libx264`), `yuv420p`, `-crf 18` |
 | Audio | AAC 192k, **24000 Hz mono** (Kokoro native); every segment MUST have an audio track (silence if needed) |
 | Background | `spec.BG` on every frame, with no other background colors |
+| Layout | title, formula strip, matrix, round pill and graph positions come from `spec.py`; the reference look is `segments/07_fw_demo` |
 | Voice | `spec.VOICE` at `spec.SPEED`, same for the whole video |
 
 ## Continuity rules (minimum breaks between segments)
@@ -63,7 +64,8 @@ All values live in `common/spec.py`; never hard-code them in a segment.
    least `XFADE` seconds of hold/tail beyond their last important moment so
    the crossfade doesn't eat content.
 4. **Tight audio.** Trim TTS leading/trailing silence. Inside a segment, gaps
-   between narration lines ≤ `spec.MAX_GAP` (0.35 s). A segment begins speaking within
+   between narration lines ≤ `spec.MAX_GAP` (0.35 s). (Kokoro's own pauses at punctuation inside
+   a line don't count.) A segment begins speaking within
    0.3 s and has ≤ 0.5 s of tail after its last word (enough for the crossfade).
 5. **Pacing is driven by narration.** Each animation beat lasts as long as its
    narration line. Never insert fixed pauses longer than `MAX_GAP`; if a visual

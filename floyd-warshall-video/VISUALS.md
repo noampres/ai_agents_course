@@ -1,8 +1,7 @@
 # Visual Plan per Segment (PROPOSAL v1)
 
 Companion to `SCRIPT_OUTLINE.md` (narration) and `CLAUDE.md` (rules). All coordinates are
-for a 1280×720 canvas and come from `common/spec.py`; anything marked **NEW** should be added
-to `spec.py` before more segments are built.
+for a 1280×720 canvas and come from `common/spec.py`; the standard layout values were set by `segments/07_fw_demo` (finished first) and now live in `spec.py`.
 
 ---
 
@@ -11,14 +10,14 @@ to `spec.py` before more segments are built.
 | Element | Exact spec |
 |---|---|
 | Background | solid `BG` on every frame; photos are the only exception (see 01, 10) |
-| Title bar | `TITLE_BAR` (0,0)–(1280,70), fill `BG` lightened 6 %, 1 px `GRID` bottom rule. Chapter title left-aligned at x=40, DejaVu Sans Bold 34 px, `FG`. Chapter tag right-aligned at x=1240, 28 px `MUTED` (e.g. "1 / 3") |
+| Title bar | No filled bar: chapter title bold `TITLE_FONT_PX`=38 at x=40, `FG`; 1 px `GRID` divider at `TITLE_DIVIDER_Y`=69. Round pill (`ROUND_BOX`) sits at the right end of the bar |
 | Chapter titles | 01–02 "All-Pairs Shortest Paths" · 03–05 "Edge by Edge" · 06–07 "Floyd–Warshall" · 08 "Head to Head" · 09–10 "All-Pairs Shortest Paths". The title text crossfades (0.3 s) when the chapter changes; the bar itself never moves |
-| Formula strip **NEW** `FORMULA_BOX` | (40,85)–(1240,155), rounded 12 px, fill `GRID` at 35 %, formula in DejaVu Sans Mono 30 px centered; colored sub-terms (see per segment) |
+| Formula strip `FORMULA_BOX` | (40,82)–(1240,138), rounded `GRID` frame, DejaVu Sans Mono 30 px centered; colored sub-terms (see per segment) |
 | Graph | nodes at `NODE_POS`, radius `NODE_R`=36, fill `BG`, 3 px `FG` ring, label Bold 32 px. Edges 3 px `MUTED` with 14 px arrowheads stopping at the ring. Two-way pairs A↔B and A↔D are two arcs bent ±18 px. Weight labels in rounded pills (fill `BG`, 1 px `GRID`), Mono 28 px, at the arc midpoint offset outward |
 | Path highlight | edge recolored + widened to 6 px, plus a moving dot (12 px) traveling along the path over 0.6 s; the color tells the role (`INFO` = existing path, `ACCENT` = detour/new edge, `GOOD` = accepted result) |
-| Matrix **NEW** `MATRIX_CELL`=72 | 5×5 grid (header row/col + 4×4) = 360×360, centered in `MATRIX_BOX` at x=940, top y=220. Header letters Bold 30 px `MUTED`; values Mono 32 px `FG`; ∞ in `MUTED`; diagonal cells tinted `GRID` 25 %. Matrix label above the grid at y=180, 28 px (e.g. "L⁽²⁾ · at most 2 edges") |
+| Matrix | header col/row `MATRIX_HEAD`=60 + 4×4 cells of `MATRIX_CELL`=88; origin (`MATRIX_X0`,`MATRIX_Y0`)=(734,166), so cells span x 794–1146, y 226–578. Header letters Bold `MUTED`/`FG`; values Mono `FG`; ∞ clear. Table name ("dist", "L⁽²⁾", "W") in the top-left header corner, `MUTED`; long labels such as "at most 2 edges" go in the caption line (`CAPTION_Y`=636) |
 | Cell states | *focus*: 3 px `INFO` outline · *pivot row/col*: `ACCENT` 18 % fill · *improved*: value turns `GOOD` + 3 px `GOOD` outline for 0.6 s, old value shown struck through in `BAD` beside it, fading over 0.4 s · *checked, no change*: brief `MUTED` outline |
-| Round indicator **NEW** `ROUND_POS` | top-right of matrix box (1240, 180) right-aligned pill, Bold 30 px: "m = 2" (edge method: max edges) / "k = A" (FW: stepping stone) |
+| Round indicator `ROUND_BOX` | (1060,12)–(1240,58) pill in the title bar, `ACCENT` outline, Mono bold: "m = 2" (edge method: max edges) / "k = A" (FW: stepping stone) |
 | Motion | ease-in-out cubic; fades 0.25 s; moves 0.4–0.6 s; at most 2 elements animate at once |
 | Photos | see CLAUDE.md "Images from the web": cover-crop, darken 35 %, desaturate 20 %, corner radius 16 px when not full-frame |
 
@@ -97,7 +96,7 @@ to a 260×90 chip at bottom-right (1240,690 anchor) and stays there until 08.
 
 ## 07_fw_demo: Walkthrough (~90 s) — subagent "fw-demo"
 
-Built by the subagent in `segments/04_demo/` (to be renamed `07_fw_demo/`). Required to adopt
+Built by the subagent in `segments/07_fw_demo/` (DONE, 64.5 s; its README has the beat list). Required to adopt
 from this plan: the chips row and corner chip from 06 (or 06 adapts to the subagent's layout, whichever
 is finished first sets the standard). Pivot cross in `ACCENT` 18 %, improvements in `GOOD` with old value
 struck through, detour path on graph.

@@ -58,3 +58,16 @@ EDGES = {  # (from, to): weight
 # A<->B and A<->D are two-way: draw those pairs as two curved arrows.
 NODE_POS = {"A": (170, 300), "B": (470, 300), "C": (470, 590), "D": (170, 590)}
 NODE_R = 36
+EDGE_CURVE = 34            # sideways bulge of each arc of a two-way pair (px)
+
+# Standard demo layout (set by segments/07_fw_demo, which was finished first). Every segment
+# that shows the matrix / formula / round pill uses exactly these values.
+TITLE_FONT_PX = 38         # bold, at x=40; no filled bar, just a GRID divider line at y=69
+TITLE_DIVIDER_Y = 69
+FORMULA_BOX = (40, 82, W - 40, 138)   # rounded GRID frame, mono 30 px
+MATRIX_CELL = 88
+MATRIX_HEAD = 60           # header row/column size
+MATRIX_X0 = 734            # left edge of the header column
+MATRIX_Y0 = 166            # top of the column-header row -> cells span x 794-1146, y 226-578
+ROUND_BOX = (W - 220, 12, W - 40, 58)  # "k = A" / "m = 2" pill in the title bar
+CAPTION_Y = 636            # one arithmetic caption line under the matrix
