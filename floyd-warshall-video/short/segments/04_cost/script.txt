@@ -1,0 +1,2 @@
+Each table costs n cubed, and we need about n of them: n to the fourth.
+Squaring the tables instead gets n cubed log n. Can we reach n cubed?

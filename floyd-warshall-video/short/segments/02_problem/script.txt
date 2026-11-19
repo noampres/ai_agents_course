@@ -1,0 +1,3 @@
+We get a directed graph with n vertices and a weight on every edge, and we want the shortest distance from every i to every j.
+Weights may be negative, but no cycle may have a negative total. Then shortest paths never repeat a vertex, so they use at most n minus one edges.
+Running Bellman-Ford from every vertex would cost up to n to the fourth.

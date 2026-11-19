@@ -1,0 +1,10 @@
+Floyd-Warshall asks a different question: not how many edges, but which vertices a path may pass through.
+Round k: is going through k shorter? One comparison per cell.
+Start with k equals A.
+B to D: eight plus seven is fifteen, better than infinity.
+C to B: five plus three is eight, also better.
+D to B: two plus three is five, better again.
+Round B finds two more shortcuts at once.
+Round C finds three more at once.
+And round D fixes the last three.
+And we land on exactly the same table, in n cubed time.

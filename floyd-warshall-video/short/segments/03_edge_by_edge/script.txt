@@ -1,0 +1,12 @@
+Start with the direct roads: this table W is the best using at most one edge.
+Natural idea: allow one more edge at a time. A path with at most m edges is a shorter one, plus a last edge from k to j.
+Try every last stop k, and keep the cheapest.
+Let's build L two, starting with one cell: from B to D.
+Row B of L one gives the best path from B to each stop k. Column D of W adds the last edge, from k to D.
+Through A: eight plus seven is fifteen.
+Through B: zero plus infinity is still infinity.
+Through C: two plus one is three.
+And k equals D just keeps the old value: infinity plus zero, still infinity.
+The smallest is three, through C.
+That's the route B, then C, then D. So three replaces infinity in L two.
+Doing that for every cell gives the rest of L two, and once more gives L three, the answer, since a shortest path needs at most n minus one edges.

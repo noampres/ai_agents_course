@@ -1,0 +1,2 @@
+The difference: one comparison per cell, instead of a min over every vertex.
+That's a factor of n: a thousand times fewer steps when n is a thousand.

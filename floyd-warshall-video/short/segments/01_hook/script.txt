@@ -1,0 +1,2 @@
+A navigation app needs the cheapest route between every pair of cities.
+That's the all-pairs shortest-paths problem.

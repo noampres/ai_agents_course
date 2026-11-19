@@ -1,0 +1,2 @@
+Bonus: a negative number on the diagonal at the end reveals a negative cycle.
+Grow paths edge by edge: n to the fourth. Choose the stepping stones: n cubed. That's Floyd-Warshall.
