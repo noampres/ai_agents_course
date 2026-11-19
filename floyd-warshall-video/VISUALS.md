@@ -18,7 +18,7 @@ to `spec.py` before more segments are built.
 | Path highlight | edge recolored + widened to 6 px, plus a moving dot (12 px) traveling along the path over 0.6 s; the color tells the role (`INFO` = existing path, `ACCENT` = detour/new edge, `GOOD` = accepted result) |
 | Matrix **NEW** `MATRIX_CELL`=72 | 5×5 grid (header row/col + 4×4) = 360×360, centered in `MATRIX_BOX` at x=940, top y=220. Header letters Bold 30 px `MUTED`; values Mono 32 px `FG`; ∞ in `MUTED`; diagonal cells tinted `GRID` 25 %. Matrix label above the grid at y=180, 28 px (e.g. "L⁽²⁾ · at most 2 edges") |
 | Cell states | *focus*: 3 px `INFO` outline · *pivot row/col*: `ACCENT` 18 % fill · *improved*: value turns `GOOD` + 3 px `GOOD` outline for 0.6 s, old value shown struck through in `BAD` beside it, fading over 0.4 s · *checked, no change*: brief `MUTED` outline |
-| Round indicator **NEW** `ROUND_POS` | top-right of matrix box (1240, 180) right-aligned pill, Bold 30 px: "k = 2" (edge method) / "k = A" (FW) |
+| Round indicator **NEW** `ROUND_POS` | top-right of matrix box (1240, 180) right-aligned pill, Bold 30 px: "m = 2" (edge method: max edges) / "k = A" (FW: stepping stone) |
 | Motion | ease-in-out cubic; fades 0.25 s; moves 0.4–0.6 s; at most 2 elements animate at once |
 | Photos | see CLAUDE.md "Images from the web": cover-crop, darken 35 %, desaturate 20 %, corner radius 16 px when not full-frame |
 
@@ -37,13 +37,18 @@ to `spec.py` before more segments are built.
 
 **Last frame:** title bar "All-Pairs Shortest Paths", graph in `GRAPH_BOX`, right half empty, no strip.
 
-## 02_setup: The distance table (~25 s)
+## 02_problem: The problem, precisely (~55 s)
 
 | Beat | Visual |
 |---|---|
-| 1 "Store distances in a table…" | Empty 5×5 grid draws in (lines stroke left→right 0.5 s); headers A–D fade in; small `MUTED` hints "from ↓" left of the column headers and "to →" above them for 2 s |
-| 2 "Zero on the diagonal… infinity elsewhere" | Diagonal 0s pop in together. Then for each of the 7 edges, in order: edge flashes `ACCENT` on the graph, its weight pill copy flies along a curve into its cell (0.5 s each, overlapping by 0.2 s). Remaining 5 cells fill with ∞ together |
-| 3 "…best you can do using at most one edge." | Label "L⁽¹⁾ · at most 1 edge" fades in above the grid |
+| 1 Input | Right half: tag "INPUT" (28 px `MUTED`) then "directed graph · n = 4 vertices · weighted edges". All 4 nodes pulse once (n = 4), then all 7 weight pills pulse once |
+| 2 Path length | Graph: path B→A→D drawn `BAD` with pill "8 + 7 = 15"; then B→C→D drawn `GOOD` with pill "2 + 1 = 3" and a ✓. Both clear |
+| 3 Output | Tag "OUTPUT"; empty 5×5 grid draws in (lines stroke left→right 0.5 s); headers A–D fade in; every cell shows "?" in `MUTED`; hints "from ↓" / "to →" for 2 s. Label above: "goal: shortest distance i → j" |
+| 4 Assumption | Card over the bottom of the right half (y 560–680): "no negative cycles" with a tiny 3-node cycle icon labelled "−1 total" struck through in `BAD` |
+| 5 Baseline | One pill under the assumption card, Mono 28 px: "n × Bellman–Ford ≈ Θ(n⁴)" with Θ(n⁴) in `BAD`; 4 tiny source arrows fan out from each node in turn (0.15 s each). Pill fades after the line; its text reappears in the 05 cost table as a reference row |
+| 6 Key fact | Card text changes to: "⇒ shortest paths use ≤ n − 1 = 3 edges" (`ACCENT` on "n − 1"); the card shrinks to a 300×50 pill at the bottom right that stays until 04 beat 4 (where it pulses once) |
+| 7 Starting point | "?" cells replaced: diagonal 0s pop in together; then for each of the 7 edges, in order, the edge flashes `ACCENT` on the graph and a copy of its weight pill flies along a curve into its cell (0.5 s each, overlapping by 0.2 s); remaining 5 cells become ∞ together. Label crossfades to "W" |
+| 8 "…at most one edge." | Label crossfades "W" → "L⁽¹⁾ · at most 1 edge" |
 
 **Last frame:** graph left + W matrix right with label, no highlights.
 
@@ -51,9 +56,9 @@ to `spec.py` before more segments are built.
 
 | Beat | Visual |
 |---|---|
-| 1 "What if we allow two edges?…" | Graph: B→C highlighted `INFO` (a ≤1-edge path), then edge C→D extends it in `ACCENT` with the moving dot; caption under the graph (y≈650, 28 px): "shorter path + one last edge" |
-| 2 "…try every possible last stop m…" | Three ghost arrows B→m→D fan out in `MUTED` for m = A, C (dashed), one at a time, then fade |
-| 3 Formula | Formula strip fades in: `L⁽ᵏ⁾[i][j] = min over m ( L⁽ᵏ⁻¹⁾[i][m] + W[m][j] )`; `L⁽ᵏ⁻¹⁾[i][m]` colored `INFO`, `W[m][j]` colored `ACCENT` (same colors as beat 1) |
+| 1 "The most natural idea: allow one more edge…" | Graph: B→C highlighted `INFO` (a ≤1-edge path), then edge C→D extends it in `ACCENT` with the moving dot; caption under the graph (y≈650, 28 px): "≤ m−1 edges + one last edge k→j" |
+| 2 "…try every possible last stop k…" | Ghost arrows B→k→D fan out in `MUTED` (dashed) for k = A, then k = C, one at a time; then node D gets a small "k = j: +0" loop badge (the stay-put option); all fade |
+| 3 Formula | Formula strip fades in: `L⁽ᵐ⁾[i][j] = min over k ( L⁽ᵐ⁻¹⁾[i][k] + W[k][j] )`; `L⁽ᵐ⁻¹⁾[i][k]` colored `INFO`, `W[k][j]` colored `ACCENT` (same colors as beat 1) |
 | 4 "…matrix multiplication…" | Inset card over the matrix area (matrix dims to 25 %): two rows in Mono 30 px: `ordinary:  Σ a·b` → `min-plus:  min (a + b)`; the `Σ`→`min` and `·`→`+` swap with a 0.4 s flip. Card fades out, matrix back to 100 % |
 
 **Last frame:** graph left, L⁽¹⁾ right, formula strip, no highlights (= 04_extend_demo first frame).
@@ -61,8 +66,8 @@ to `spec.py` before more segments are built.
 ## 04_extend_demo: Walkthrough (~60 s) — subagent "extend-demo"
 
 Built by the subagent in `segments/04_extend_demo/`; its README holds the final layout.
-Required elements: round indicator "k = 2"/"k = 3"; worked-cell **work table**
-(via m | L⁽¹⁾[B][m] | + W[m][D] | =), with each row filling in turn and the min circled in `GOOD`; path B→C→D
+Required elements: round indicator "m = 2"/"m = 3"; worked-cell **work table**
+(via k | L⁽¹⁾[B][k] | + W[k][D] | =; the "via D" row is labelled "old value"), with each row filling in turn and the min circled in `GOOD`; path B→C→D
 on graph in `GOOD`; fast flashes for the other changed cells; A→D 7→6 with path A→B→C→D.
 
 **Last frame:** L⁽³⁾ with label "L⁽³⁾ · at most 3 edges", no highlights, formula strip.
@@ -119,7 +124,7 @@ except card 3 which may use a photo header.
 |---|---|
 | 1 "Negative weights ✓" | mini graph of 2 nodes with a `−2` edge, ✓ in `GOOD` |
 | 2 "Negative cycle" | mini 3×3 matrix with diagonal `−1` cell in `BAD` + outline, caption "dist[i][i] < 0" |
-| 3 "Huge & sparse?" | photo header `road_network_aerial.jpg` (130 px tall), caption "n × Dijkstra can beat n³" |
+| 3 "Huge & sparse?" | photo header `road_network_aerial.jpg` (130 px tall), caption "weights ≥ 0: n × Dijkstra can beat n³" |
 
 **Last frame:** three cards.
 
