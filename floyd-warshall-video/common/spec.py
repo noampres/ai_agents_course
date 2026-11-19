@@ -44,3 +44,17 @@ TITLE_BAR = (0, 0, W, 70)          # top bar with section title
 STAGE = (40, 90, W - 40, H - 30)   # main drawing area
 GRAPH_BOX = (40, 90, 600, H - 30)  # left half: graph
 MATRIX_BOX = (640, 90, W - 40, H - 30)  # right half: distance matrix
+
+# Running example graph (shared by ALL segments, see SCRIPT_OUTLINE.md)
+INF = float("inf")
+NODES = ["A", "B", "C", "D"]
+EDGES = {  # (from, to): weight
+    ("A", "B"): 3, ("A", "D"): 7,
+    ("B", "A"): 8, ("B", "C"): 2,
+    ("C", "A"): 5, ("C", "D"): 1,
+    ("D", "A"): 2,
+}
+# Node centers inside GRAPH_BOX (top band y<170 reserved for the formula strip).
+# A<->B and A<->D are two-way: draw those pairs as two curved arrows.
+NODE_POS = {"A": (170, 300), "B": (470, 300), "C": (470, 590), "D": (170, 590)}
+NODE_R = 36
