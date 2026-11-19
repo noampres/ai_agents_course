@@ -50,7 +50,7 @@ CAPTION_Y = MAT_Y0 + HEAD + 4 * CELL + 58   # centre line of the arithmetic/summ
 # k-round indicator, right side of the title bar.
 K_BOX = (spec.W - 220, 12, spec.W - 40, 58)
 
-FADE = 0.25                # default fade length (s)
+FADE = spec.FADE           # default fade length (s), scaled with narration speed
 
 def initial_dist(nodes=NODES, edges=spec.EDGES):
     """Initial dist table from the edge dict: 0 on the diagonal, edge weight, else INF."""

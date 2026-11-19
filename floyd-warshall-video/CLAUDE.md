@@ -48,7 +48,8 @@ All values live in `common/spec.py`; never hard-code them in a segment.
 | Audio | AAC 192k, **24000 Hz mono** (Kokoro native); every segment MUST have an audio track (silence if needed) |
 | Background | `spec.BG` on every frame, with no other background colors |
 | Layout | title, formula strip, matrix, round pill and graph positions come from `spec.py`; the reference look is `segments/07_fw_demo` |
-| Voice | `spec.VOICE` at `spec.SPEED`, same for the whole video |
+| Voice | `spec.VOICE` at `spec.SPEED` (= 1.5, read 1.5× faster), same for the whole video |
+| Timing | every fixed animation duration is multiplied by `spec.TIME_SCALE` (= 1/SPEED) or uses `spec.FADE`/`spec.MOVE`; only the 3 s ending slide is exempt |
 
 ## Continuity rules (minimum breaks between segments)
 
@@ -60,13 +61,13 @@ All values live in `common/spec.py`; never hard-code them in a segment.
    segments (graph, matrix, title bar, legend) uses identical coordinates, sizes,
    colors and fonts. Put shared layout coordinates in `common/spec.py`.
 3. **Transitions, not cuts.** `build.py` joins segments with `xfade` (video) and
-   `acrossfade` (audio) of `spec.XFADE` seconds (0.4 s). Segments must include at
+   `acrossfade` (audio) of `spec.XFADE` seconds (≈0.27 s). Segments must include at
    least `XFADE` seconds of hold/tail beyond their last important moment so
    the crossfade doesn't eat content.
 4. **Tight audio.** Trim TTS leading/trailing silence. Inside a segment, gaps
-   between narration lines ≤ `spec.MAX_GAP` (0.35 s). (Kokoro's own pauses at punctuation inside
+   between narration lines ≤ `spec.MAX_GAP` (≈0.23 s). (Kokoro's own pauses at punctuation inside
    a line don't count.) A segment begins speaking within
-   0.3 s and has ≤ 0.5 s of tail after its last word (enough for the crossfade).
+   0.3 s and has ≤ `spec.TAIL` (≈0.33 s) of tail after its last word (enough for the crossfade).
 5. **Pacing is driven by narration.** Each animation beat lasts as long as its
    narration line. Never insert fixed pauses longer than `MAX_GAP`; if a visual
    needs more time, give it more words rather than silence.

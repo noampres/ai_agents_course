@@ -14,12 +14,15 @@ LUFS = -16
 # Voice
 LANG = "a"          # American English
 VOICE = "af_heart"
-SPEED = 1.0
+SPEED = 1.5         # narration read 1.5x faster (user request); script text unchanged
+TIME_SCALE = 1 / SPEED  # multiply EVERY fixed duration (fades, moves, gaps, holds) by this
 
 # Continuity
-XFADE = 0.4         # seconds of crossfade between segments
-MAX_GAP = 0.35      # max silence between narration lines inside a segment
-TAIL = 0.5          # hold after the last word of a segment
+XFADE = round(0.4 * TIME_SCALE, 3)     # crossfade between segments (~0.27 s)
+MAX_GAP = round(0.35 * TIME_SCALE, 3)  # max silence between narration lines (~0.23 s)
+TAIL = round(0.5 * TIME_SCALE, 3)      # hold after the last word of a segment (~0.33 s)
+FADE = round(0.25 * TIME_SCALE, 3)     # default fade (~0.17 s)
+MOVE = round(0.5 * TIME_SCALE, 3)      # default move/slide (~0.33 s)
 
 # Palette (dark theme, high contrast)
 BG = (18, 22, 33)

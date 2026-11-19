@@ -32,8 +32,9 @@ TTS_CACHE = OUT / "tts"
 FRAMES = HERE / "frames"
 
 LEAD = 0.12      # silence before the first word (must be < 0.3 s)
-GAP = 0.22       # silence between beats (< spec.MAX_GAP incl. trim padding)
+GAP = 0.22 * spec.TIME_SCALE       # silence between beats (< spec.MAX_GAP incl. trim padding)
 PAD = 0.02       # silence kept on each side of a trimmed clip
+S = spec.TIME_SCALE  # every fixed animation duration below is scaled by this (narration speed-up)
 CUE = "^"        # cue marker inside narration text (stripped before TTS)
 
 WORDS = {0: "zero", 1: "one", 2: "two", 3: "three", 5: "five", 6: "six", 7: "seven",
@@ -246,7 +247,7 @@ def plan():
     for n, k in enumerate(ks):
         rs = round_start[k]
         b = next(x for x in BEATS if x.get("k") == k and x["kind"] in ("round", "fast"))
-        t_in = b["cues"][0] if (b["kind"] == "round" and k == "A") else rs + (0.25 if n else 0)
+        t_in = b["cues"][0] if (b["kind"] == "round" and k == "A") else rs + (0.25 * S if n else 0)
         P["pivots"].append(dict(k=IDX[k], t_in=t_in, t_out=round_end[k], pill_in=rs))
 
     for b in BEATS:
@@ -254,12 +255,12 @@ def plan():
             k, i, j = IDX[b["k"]], IDX[b["ij"][0]], IDX[b["ij"][1]]
             c = b["c"]
             t_out = b["t1"] - 0.05
-            P["focus"].append(dict(i=i, j=j, k=k, t_in=b["t0"] - 0.1, t_out=t_out))
+            P["focus"].append(dict(i=i, j=j, k=k, t_in=b["t0"] - 0.1 * S, t_out=t_out))
             cue0, cue1 = b["cues"][0], b["cues"][1]
             ok = c["better"]
             rel = "<" if ok else "≥"
             runs = [
-                (f"{NODES[i]}→{NODES[j]}", spec.INFO, spec.FONT_MONO_BOLD, 36, ("in", cue0 - 0.15)),
+                (f"{NODES[i]}→{NODES[j]}", spec.INFO, spec.FONT_MONO_BOLD, 36, ("in", cue0 - 0.15 * S)),
                 ("  ", spec.FG, spec.FONT_MONO, 36, ("in", cue0)),
                 (f"{fd.fmt(c['a'])} + {fd.fmt(c['b'])} = {fd.fmt(c['a'] + c['b'])}",
                  spec.FG, spec.FONT_MONO, 36, ("in", cue0)),
@@ -268,12 +269,12 @@ def plan():
                 ("✓" if ok else "✗", spec.GOOD if ok else spec.BAD, spec.FONT_SANS_BOLD, 40,
                  ("in", cue1)),
             ]
-            P["captions"].append(dict(runs=runs, t_in=cue0 - 0.15, t_out=t_out))
+            P["captions"].append(dict(runs=runs, t_in=cue0 - 0.15 * S, t_out=t_out))
             if c["path"]:
                 P["paths"].append(dict(nodes=c["path"], color=spec.GOOD if ok else spec.BAD,
                                        dashed=not ok, t_in=cue1, t_out=t_out))
             if ok:
-                tc = b["cues"][2] if len(b["cues"]) > 2 else cue1 + 0.3
+                tc = b["cues"][2] if len(b["cues"]) > 2 else cue1 + 0.3 * S
                 P["changes"].setdefault((i, j), []).append(
                     dict(t=tc, old=fd.fmt(c["old"]), new=fd.fmt(c["new"]), end=round_end[b["k"]]))
         elif b["kind"] == "fast":
@@ -283,17 +284,17 @@ def plan():
             t_out = b["t1"] - 0.05
             for n, (u, cue) in enumerate(zip(b["ups"], b["cues"])):
                 i, j, old, new = info[u]
-                P["focus"].append(dict(i=i, j=j, k=None, t_in=cue - 0.1,
-                                       t_out=min(cue + 1.0, t_out)))
+                P["focus"].append(dict(i=i, j=j, k=None, t_in=cue - 0.1 * S,
+                                       t_out=min(cue + 1.0 * S, t_out)))
                 P["changes"].setdefault((i, j), []).append(
-                    dict(t=cue + 0.3, old=fd.fmt(old), new=fd.fmt(new), end=round_end[b["k"]]))
+                    dict(t=cue + 0.3 * S, old=fd.fmt(old), new=fd.fmt(new), end=round_end[b["k"]]))
                 if n:
-                    runs.append(("   •   ", spec.MUTED, spec.FONT_SANS_BOLD, 30, ("in", cue + 0.3)))
-                runs.append((f"{u[0]}→{u[1]}", spec.INFO, spec.FONT_MONO_BOLD, 32, ("in", cue + 0.3)))
-                runs.append((f" {fd.fmt(new)}", spec.GOOD, spec.FONT_MONO_BOLD, 32, ("in", cue + 0.3)))
+                    runs.append(("   •   ", spec.MUTED, spec.FONT_SANS_BOLD, 30, ("in", cue + 0.3 * S)))
+                runs.append((f"{u[0]}→{u[1]}", spec.INFO, spec.FONT_MONO_BOLD, 32, ("in", cue + 0.3 * S)))
+                runs.append((f" {fd.fmt(new)}", spec.GOOD, spec.FONT_MONO_BOLD, 32, ("in", cue + 0.3 * S)))
             P["captions"].append(dict(runs=runs, t_in=b["cues"][0], t_out=t_out))
         elif b["kind"] == "final":
-            P["frame"] = dict(t_in=b["t0"] + 0.3, t_out=b["t1"] - 0.3)
+            P["frame"] = dict(t_in=b["t0"] + 0.3 * S, t_out=b["t1"] - 0.3 * S)
     return P
 
 
@@ -304,12 +305,12 @@ def cell_state(P, i, j, t):
         return {"text": base, "color": spec.FG}
     c = ch[-1]
     dt = t - c["t"]
-    # 0-0.25 s strike old value, hold, 0.4-0.8 s old out / new in
-    good = env(t, c["t"] + 0.6, c["end"])
+    # (x TIME_SCALE) 0-0.25 s strike old value, hold, 0.4-0.8 s old out / new in
+    good = env(t, c["t"] + 0.6 * S, c["end"])
     st = {"text": c["new"], "color": mix(spec.FG, spec.GOOD, good), "mark": good}
     if dt < 0.8:
         st["color"] = spec.GOOD
-        st.update(old=c["old"], strike=dt / 0.25, swap=(dt - 0.4) / 0.4)
+        st.update(old=c["old"], strike=dt / (0.25 * S), swap=(dt - 0.4 * S) / (0.4 * S))
     return st
 
 
@@ -326,7 +327,7 @@ def draw_frame(P, t):
         if a > 0.01:
             pivot = (pv["k"], a)
             rings[NODES[pv["k"]]].append((spec.ACCENT, a))
-        pa = env(t, pv["pill_in"] + 0.25, pv["t_out"])
+        pa = env(t, pv["pill_in"] + 0.25 * S, pv["t_out"])
         if pa > 0.01:
             fd.draw_k(c, NODES[pv["k"]], pa, box_alpha=0)
         pill_box = max(pill_box, env(t, P["pivots"][0]["pill_in"], P["pivots"][-1]["t_out"]))
@@ -356,7 +357,7 @@ def draw_frame(P, t):
     fd.draw_matrix(c, cells, pivot=pivot, outlines=outlines, header_hl=header_hl)
 
     if P["frame"]:
-        fa = env(t, P["frame"]["t_in"], P["frame"]["t_out"], fade=0.3)
+        fa = env(t, P["frame"]["t_in"], P["frame"]["t_out"], fade=0.3 * S)
         if fa > 0.01:
             b0, b1 = fd.cell_box(0, 0), fd.cell_box(3, 3)
             c.rect((b0[0] - 8, b0[1] - 8, b1[2] + 8, b1[3] + 8),
