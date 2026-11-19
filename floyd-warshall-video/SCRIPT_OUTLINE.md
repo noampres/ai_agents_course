@@ -1,7 +1,7 @@
 # All-Pairs Shortest Paths → Floyd–Warshall: Script Structure (DRAFT v3)
 
-Target length: ~4.5 min (narration at 1.5× speed, `spec.SPEED`). One continuous narration in the same voice; segments are joined
-with ~0.27 s crossfades (`spec.XFADE`) (see CLAUDE.md). Each segment lists its **handoff**: what's on
+Target length: ~5.5 min (narration at 1.2× speed, `spec.SPEED`). One continuous narration in the same voice; segments are joined
+with ~0.33 s crossfades (`spec.XFADE`) (see CLAUDE.md). Each segment lists its **handoff**: what's on
 screen at its last frame, which must be what the next segment starts with.
 
 **Story arc:** motivation → the problem stated precisely (input, output, assumptions) →
@@ -87,7 +87,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
 
 ---
 
-## 01_hook: Motivation (~13 s)
+## 01_hook: Motivation (~17 s)
 
 - **On screen:** photos of cars on a highway, then a city road map; four cities become A–D and
   the map dissolves into the drawn graph. The title bar fades in.
@@ -97,7 +97,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   3. "That's called the all-pairs shortest-paths problem. Let's state it precisely."
 - **Handoff →** graph on left (`GRAPH_BOX`), right half empty.
 
-## 02_problem: The problem, precisely (~37 s)
+## 02_problem: The problem, precisely (~46 s)
 
 - **On screen:** labels on the graph, an example path comparison, the empty goal table,
   the assumption card, a one-line baseline cost pill, then the starting table built from the edges.
@@ -112,7 +112,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   8. "This table, W, is the best we can do using at most one edge."
 - **Handoff →** graph left + W matrix right, labelled "L⁽¹⁾ · at most 1 edge".
 
-## 03_extend_idea: Grow paths one edge at a time (~20 s)
+## 03_extend_idea: Grow paths one edge at a time (~25 s)
 
 - **On screen:** a path on the graph grows edge by edge; recurrence appears in the formula strip.
 - **Beats:**
@@ -122,7 +122,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   4. "That's matrix multiplication, with plus instead of times and min instead of sum."
 - **Handoff →** demo layout (graph left, L⁽¹⁾ right, formula strip), no highlights.
 
-## 04_extend_demo: Walkthrough with tables (~40 s) ← subagent "extend-demo"
+## 04_extend_demo: Walkthrough with tables (~50 s) ← subagent "extend-demo"
 
 - **On screen:** graph + matrix + formula strip + "m = …" indicator; a small side "work
   table" for the worked cell.
@@ -134,7 +134,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   4. "Remember, a shortest path needs at most n − 1, here three, edges, so L⁽³⁾ is our answer."
 - **Handoff →** final matrix (L⁽³⁾), no highlights.
 
-## 05_extend_cost: What it costs (~20 s)
+## 05_extend_cost: What it costs (~25 s)
 
 - **On screen:** cost breakdown builds as a small table; then the "repeated squaring" trick.
 - **Beats:**
@@ -152,7 +152,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
 - **Handoff →** cost table in the right half, graph left. (06 shrinks it to a corner chip
   that comes back in 08.)
 
-## 06_fw_idea: Floyd–Warshall's insight (~23 s)
+## 06_fw_idea: Floyd–Warshall's insight (~29 s)
 
 - **On screen:** back to the demo layout with W; a single cell (B→D = ∞) highlighted; detour
   B→A→D on the graph; the FW formula replaces the previous one in the strip.
@@ -163,7 +163,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   4. "That's one comparison per cell per round, instead of a min over every vertex."
 - **Handoff →** demo layout, FW formula strip visible, no highlights.
 
-## 07_fw_demo: Walkthrough (~60 s) ← subagent "fw-demo"
+## 07_fw_demo: Walkthrough (~75 s) ← subagent "fw-demo"
 
 - **On screen:** graph + matrix + formula strip; k-round indicator.
 - **Beats:**
@@ -174,7 +174,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   4. "After the last round, every entry is the true shortest distance, the same table the edge-by-edge method found."
 - **Handoff →** final matrix, no highlights, formula strip still visible.
 
-## 08_compare: Why Floyd–Warshall wins (~27 s)
+## 08_compare: Why Floyd–Warshall wins (~33 s)
 
 - **On screen:** both pseudocodes side by side (4 loops vs 3 loops), then the comparison table.
 - **Beats:**
@@ -194,7 +194,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
 
 - **Handoff →** comparison table centered.
 
-## 09_notes: Caveats (~17 s)
+## 09_notes: Caveats (~21 s)
 
 - **On screen:** three cards appear in turn.
 - **Beats:**
@@ -203,7 +203,7 @@ mean "only stepping stones up to k", not "at most m edges". Don't present them a
   3. "And that every-vertex idea from the start? With non-negative weights on huge sparse graphs, n runs of Dijkstra can beat n³."
 - **Handoff →** cards.
 
-## 10_recap: Wrap-up (~10 s + 3 s ending slide)
+## 10_recap: Wrap-up (~13 s + 3 s ending slide)
 
 - **On screen:** cards collapse into two summary lines; graph returns; then the ending slide (see VISUALS.md).
 - **Beats:**

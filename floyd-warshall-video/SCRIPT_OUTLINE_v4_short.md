@@ -7,8 +7,8 @@ from scratch takes **≤ 20 min**. (v3 stays as the long version in `SCRIPT_OUTL
 
 - Measured: `07_fw_demo` (40.7 s of video) renders in **85.6 s** with TTS cached → ~2.1 s per video-second;
   fresh Kokoro TTS adds ~0.7 s per audio-second → **~2.8 s of rendering per second of video**.
-- v4 target length: **~2 min 25 s** (narration at 1.5×). Only the 2 table demos are drawn frame by frame;
-  everything else is static keyframes → **~5–6 min** total render, well under 20 min (see the table at the end).
+- v4 target length: **~3 min** (narration at 1.2×). Only the 2 table demos are drawn frame by frame;
+  everything else is static keyframes → **~6–8 min** total render, well under 20 min (see the table at the end).
 - (v3 is ~4.5 min ≈ 13–15 min to render; the time saving is mostly in production and checking, since there are fewer
   and simpler segments.)
 
@@ -32,7 +32,7 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
 
 ---
 
-## 01_hook (~8 s) · new, STATIC (2 keyframes)
+## 01_hook (~10 s) · new, STATIC (2 keyframes)
 - **On screen:** keyframe 1 = ONE static web photo (cars on a highway, per CLAUDE.md image rules),
   darkened, with title text. Crossfade → keyframe 2 = title bar + drawn graph.
 - **Narration:**
@@ -40,7 +40,7 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
   2. "That's the all-pairs shortest-paths problem."
 - *Cut from v3:* city-map photo, markers tracing roads.
 
-## 02_problem (~22 s) · new, STATIC (3 keyframes; replaces the animated 02 segment)
+## 02_problem (~28 s) · new, STATIC (3 keyframes; replaces the animated 02 segment)
 - **Narration:**
   1. "We get a directed graph with n vertices and a weight on every edge, and we want the shortest distance from every i to every j."
   2. "Weights may be negative, but no cycle may have a negative total. Then shortest paths never repeat a vertex, so they use at most n − 1 edges."
@@ -52,7 +52,7 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
   already filled, as the opening state of demo ①), all flights and pulses. The finished animated
   `segments/02_problem` stays in the repo for the long version.
 
-## 03_edge_by_edge (~38 s) · TABLE DEMO ① · trim of `segments/04_extend_demo` + its idea
+## 03_edge_by_edge (~48 s) · TABLE DEMO ① · trim of `segments/04_extend_demo` + its idea
 - **Narration:**
   0. "Start with the direct roads: this table W is the best using at most one edge." (W fades in, already filled)
   1. "Natural idea: allow one more edge at a time. A path with at most m edges is a shorter one plus a last edge k → j."
@@ -62,13 +62,13 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
 - *Cut from v3:* separate 03_extend_idea segment, the min-plus ↔ matrix multiplication inset, individual flashes
   of each changed cell, the A→D walk-through in L⁽³⁾.
 
-## 04_cost (~10 s) · new, STATIC (2 keyframes, no table)
+## 04_cost (~13 s) · new, STATIC (2 keyframes, no table)
 - **On screen:** 03's last frame stays; the formula strip text swaps (crossfade) to
   `n tables × n³ each = Θ(n⁴)`, then to `squaring: log n tables → Θ(n³ log n)`.
 - **Narration:** "Each table costs n³, and we need about n of them: n⁴. Squaring the tables instead gets n³ log n. Can we reach n³?"
 - *Cut from v3:* the cost table (its numbers move into the comparison table ③), pulsing cells, stacked tables, chip chains.
 
-## 05_floyd_warshall (~40 s) · TABLE DEMO ② · trim of `segments/07_fw_demo` + its idea
+## 05_floyd_warshall (~50 s) · TABLE DEMO ② · trim of `segments/07_fw_demo` + its idea
 - **Narration:**
   1. "Floyd–Warshall asks a different question: not how many edges, but which vertices a path may pass through."
   2. Formula strip: `dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])`. "Round k: is going through k shorter? One comparison per cell."
@@ -77,7 +77,7 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
   5. "…and we land on exactly the same table, in Θ(n³)."
 - *Cut from v3:* separate 06_fw_idea segment and its preview, the 3 rejected checks in round A, the narrated k = B detail.
 
-## 06_compare (~15 s) · TABLE DEMO ③ (the last table), near-static (2 keyframes)
+## 06_compare (~19 s) · TABLE DEMO ③ (the last table), near-static (2 keyframes)
 - **On screen:** keyframe 1 = the full comparison table; keyframe 2 = same table with the FW column outlined GOOD.
 
   | | n × Bellman–Ford | Edge by edge | Squaring | Floyd–Warshall |
@@ -90,7 +90,7 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
   a thousand times fewer steps when n is a thousand."
 - *Cut from v3:* side-by-side pseudocode, cost counters, the in-place icons, the bar chart, the space row.
 
-## 07_recap (~10 s + 3 s ending slide) · new, STATIC (2 keyframes + ending slide)
+## 07_recap (~13 s + 3 s ending slide) · new, STATIC (2 keyframes + ending slide)
 - **Narration:**
   1. "Bonus: a negative number on the diagonal at the end reveals a negative cycle."
   2. "Grow paths edge by edge: n⁴. Choose the stepping stones: n³. That's Floyd–Warshall."
@@ -105,16 +105,16 @@ Notation and running example: unchanged from v3 (`m` = max edges, `k` = a vertex
 |---|---|---|
 | Segment | v3 | v4 | v4 render method | est. render time |
 |---|---|---|---|---|
-| hook | 13 s | 8 s | static keyframes | ~10 s |
-| problem | 35 s (built) | ~22 s | static keyframes | ~20 s |
-| edge by edge (idea + demo) ① | 20 + 44 s | ~38 s | animated (trimmed 04) | ~1.8 min |
-| cost | 20 s | ~10 s | static keyframes | ~10 s |
-| FW (idea + demo) ② | 23 + 41 s | ~40 s | animated (trimmed 07) | ~1.9 min |
-| compare ③ | 27 s | ~15 s | static keyframes | ~15 s |
-| notes + recap | 17 + 10 s | ~10 s | static keyframes | ~10 s |
+| hook | 17 s | 10 s | static keyframes | ~10 s |
+| problem | 46 s | ~28 s | static keyframes | ~25 s |
+| edge by edge (idea + demo) ① | 25 + 50 s | ~48 s | animated (trimmed 04) | ~2.3 min |
+| cost | 25 s | ~13 s | static keyframes | ~10 s |
+| FW (idea + demo) ② | 29 + 75 s | ~50 s | animated (trimmed 07) | ~2.4 min |
+| compare ③ | 33 s | ~19 s | static keyframes | ~15 s |
+| notes + recap | 21 + 13 s | ~13 s | static keyframes | ~10 s |
 | ending slide | 3 s | 3 s | static | ~2 s |
 | stitching | | | ffmpeg xfade | ~1 min |
-| **Total** | **~4.5 min** | **~2.4 min** | | **~5–6 min** |
+| **Total** | **~5.5 min** | **~3 min** | | **~6–8 min** |
 
 Estimates: animated = 2.8 s per video-second (measured); static = TTS (~0.7 s per audio-second) + an ffmpeg hold (~a few s).
 Table demonstrations: **3** (①②③).

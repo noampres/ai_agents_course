@@ -7,9 +7,9 @@ for a 1280×720 canvas and come from `common/spec.py`; the standard layout value
 
 ## 0. Global visual system (all segments)
 
-> **Timing note (narration speed 1.5×):** every duration written in this file (fades, moves,
+> **Timing note (narration speed 1.2×):** every duration written in this file (fades, moves,
 > flies, pulses, holds, beat times) is at the OLD 1.0× speed. Multiply it by `spec.TIME_SCALE`
-> (= 2/3) or use `spec.FADE` / `spec.MOVE`. Example: "0.5 s fly" → 0.33 s. Segment durations ≈ ×2/3.
+> (= 1/1.2 ≈ 0.83) or use `spec.FADE` / `spec.MOVE`. Example: "0.5 s fly" → 0.42 s. Segment durations ≈ ×0.83.
 
 | Element | Exact spec |
 |---|---|
@@ -22,7 +22,7 @@ for a 1280×720 canvas and come from `common/spec.py`; the standard layout value
 | Matrix | header col/row `MATRIX_HEAD`=60 + 4×4 cells of `MATRIX_CELL`=88; origin (`MATRIX_X0`,`MATRIX_Y0`)=(734,166), so cells span x 794–1146, y 226–578. Header letters Bold `MUTED`/`FG`; values Mono `FG`; ∞ clear. Table name ("dist", "L⁽²⁾", "W") in the top-left header corner, `MUTED`; long labels such as "at most 2 edges" go in the caption line (`CAPTION_Y`=636) |
 | Cell states | *focus*: 3 px `INFO` outline · *pivot row/col*: `ACCENT` 18 % fill · *improved*: value turns `GOOD` + 3 px `GOOD` outline for 0.6 s, old value shown struck through in `BAD` beside it, fading over 0.4 s · *checked, no change*: brief `MUTED` outline |
 | Round indicator `ROUND_BOX` | (1060,12)–(1240,58) pill in the title bar, `ACCENT` outline, Mono bold: "m = 2" (edge method: max edges) / "k = A" (FW: stepping stone) |
-| Motion | ease-in-out cubic; fades `spec.FADE` (≈0.17 s); moves `spec.MOVE` (≈0.33 s); any other duration × `spec.TIME_SCALE`; at most 2 elements animate at once |
+| Motion | ease-in-out cubic; fades `spec.FADE` (≈0.21 s); moves `spec.MOVE` (≈0.42 s); any other duration × `spec.TIME_SCALE`; at most 2 elements animate at once |
 | Photos | see CLAUDE.md "Images from the web": cover-crop, darken 35 %, desaturate 20 %, corner radius 16 px when not full-frame |
 
 ---
