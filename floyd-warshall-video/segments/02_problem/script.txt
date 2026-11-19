@@ -1,0 +1,8 @@
+We're given a directed graph with n vertices, here four, and a weight on every edge.
+A path's length is the sum of its weights. From B to D, going through A costs eight plus seven, which is fifteen, but going through C costs only two plus one, which is three.
+The goal is an n by n table: the entry in row i, column j, is the shortest distance from i to j.
+Weights may even be negative, as long as no cycle has a negative total. Otherwise you could loop forever, and shortest would have no meaning.
+The obvious fix is to run Bellman-Ford from every vertex, which costs up to theta of n to the fourth.
+Also, a shortest path never repeats a vertex, so it uses at most n minus one, here three, edges.
+What do we know for sure? The direct roads: zero from a city to itself, the edge weight where a road exists, and infinity where there's none yet.
+This table, W, is the best we can do using at most one edge.
