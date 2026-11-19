@@ -1,0 +1,13 @@
+Let's build L two, the shortest paths with at most two edges, starting with one cell in full: from B to D.
+Row B of L one, which is just W, gives the best path from B to each stop k. Column D of W adds one final edge, from k to D.
+Try every last stop k. Through A: eight plus seven is fifteen.
+Through B: zero plus infinity is still infinity.
+Through C: two plus one is three.
+And k equals D just keeps the old value: infinity plus zero, still infinity.
+The smallest of the four is three, through C.
+That's the route B, then C, then D. So three replaces infinity, the first entry of L two.
+The other cells work the same way: A to C drops to five, B to A to seven, C to A to three, C to B to eight, and D to B to five.
+Now m equals three: extend L two by one more edge, the same way.
+From A to D, the best so far is the direct edge, seven. But A to B to C to D costs three plus two plus one, which is six.
+Three more cells improve: B to A becomes five, C to B, six, and D to C, seven.
+Remember, a shortest path needs at most n minus one, here three, edges, so L three is our answer.
