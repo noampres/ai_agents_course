@@ -1,0 +1,4 @@
+out/
+segments/*/out/
+segments/*/frames/
+__pycache__/
