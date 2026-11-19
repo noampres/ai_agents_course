@@ -1,0 +1,4 @@
+The most natural idea: allow one more edge at a time. A path with at most two edges is a path with at most one edge, plus one final edge from some vertex k to j.
+So try every possible last stop k, and keep the cheapest. Picking k equals j costs nothing extra, so paths that are already good enough survive.
+In symbols: L m of i j is the minimum over k, of L m minus one of i k, plus W of k j.
+That's matrix multiplication, with plus instead of times, and min instead of sum.

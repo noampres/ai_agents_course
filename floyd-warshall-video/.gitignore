@@ -2,3 +2,4 @@ out/
 segments/*/out/
 segments/*/frames/
 __pycache__/
+renders/

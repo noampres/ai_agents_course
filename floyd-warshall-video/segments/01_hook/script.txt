@@ -1,0 +1,3 @@
+Imagine a map of cities with one-way roads, each with a travel cost.
+A navigation app doesn't just need one route; it may need the cheapest route between every pair of cities.
+That's called the all-pairs shortest-paths problem. Let's state it precisely.
